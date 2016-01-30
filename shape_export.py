@@ -14,7 +14,6 @@ import math
 from helper import *
 
 def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=False):
-        #print ("SE")
         loc=model.location.copy()
         shape=ET.Element('shape')
         name=ET.SubElement(shape,'name')
@@ -37,32 +36,10 @@ def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=Fals
         name.text=model.data.name
         scene = bpy.context.scene
         oldmodel=None
-        if False:#triangulate
-            bpy.ops.object.mode_set(mode='OBJECT')
-            model.select = True
-            oldmodel=bpy.ops.object.duplicate()
-            bpy.ops.object.mode_set(mode='EDIT')
+  
+        model=model.to_mesh(scene, True, 'PREVIEW')
 
-            #bpy.context.scene.objects.active = model
 
-            #bm = bmesh.new()
-            #bm.from_mesh(model.data)
-            bpy.ops.mesh.quads_convert_to_tris(use_beauty=False)
-            bpy.ops.object.mode_set(mode='OBJECT')
-            #bm.modifiers["Triangulate"].use_beauty = False
-            #bpy.ops.object.modifier_apply(apply_as="DATA", modifier="Triangulate")
-            #bm.to_mesh(model.data)
-
-            model=model.data
-            print ("Triangulated")
-
-        else:
-            model=model.to_mesh(scene, True, 'PREVIEW')
-
-        """if swap_xy:
-            bpy.ops.transform.rotate(value=1.57,axis=(1,0,0))
-            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-        """
         verts = model.vertices
 
 
@@ -120,9 +97,7 @@ def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=Fals
                     texture=ET.SubElement(face,'texture')
                     texture.text=texfn
                     last_tex=texfn
-                else:
-                    #print ("Skipping "+texfn)
-                    pass
+                
             vpf=len(f.loop_indices)
 
             uvlist=[]
@@ -130,8 +105,9 @@ def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=Fals
                 uvlist.append(uv_layer[li].uv)
             uvlist.reverse()
             un=0
+            
             for li in f.loop_indices:
-               coords=verts[loop_vert[li]].co #*bpy.context.matrix_world
+               coords=verts[loop_vert[li]].co 
                normal=verts[loop_vert[li]].normal
                #print(normal)
                uv=uv_layer[li].uv

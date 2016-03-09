@@ -23,12 +23,6 @@ def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=Fals
         ly.text = str(loc.y)
         lz.text = str(loc.z)
         geom = ET.SubElement(shape,'geom')
-        #TODO: get rid of below count variables
-        x_counts = ET.SubElement(geom,'counts')
-        x_vcount = ET.SubElement(x_counts,'vertices')
-        x_fcount = ET.SubElement(x_counts,"faces")
-        x_vpf = ET.SubElement(x_counts,"v_p_f")
-        x_uvcount = ET.SubElement(x_counts,'uvs')
 
         x_faces = ET.SubElement(geom,'faces')
         x_verts = ET.SubElement(geom,'vertices')
@@ -41,7 +35,6 @@ def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=Fals
   
         model=model.to_mesh(scene, True, 'PREVIEW')
         verts = model.vertices
-        x_vcount.text = str(len(verts))
 
         for v in verts:
             x_vertex = ET.SubElement(x_verts,'vertex')
@@ -60,7 +53,6 @@ def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=Fals
         
         last_tex = ''
         last_material = ''
-        x_fcount.text = str(len(model.polygons))
 
         for f in model.polygons:
             face=ET.SubElement(x_faces,'face')
@@ -124,10 +116,7 @@ def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=Fals
                x_v = ET.SubElement(x_uv,'v')
                x_u.text = str(uv[0])
                x_v.text = str(uv[1])
-
-        x_vpf.text = str(vpf)
-        x_uvcount.text = str(uv_index)
-
+               
         if oldmodel:
             bpy.ops.object.delete()
 

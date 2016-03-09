@@ -13,66 +13,64 @@ import math
 
 from helper import *
 
-def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=False):
+def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=False):
         loc=model.location.copy()
-        shape=ET.Element('shape')
-        name=ET.SubElement(shape,'name')
-        loce=ET.SubElement(shape,"loc")
-        lx,ly,lz=makeXYZode(loce)
-        lx.text=str(loc.x)
-        ly.text=str(loc.y)
-        lz.text=str(loc.z)
-        geom=ET.SubElement(shape,'geom')
-        x_counts=ET.SubElement(geom,'counts')
-        x_vcount=ET.SubElement(x_counts,'vertices')
-        x_fcount=ET.SubElement(x_counts,"faces")
-        x_vpf=ET.SubElement(x_counts,"v_p_f")
-        x_uvcount=ET.SubElement(x_counts,'uvs')
+        shape = ET.Element('shape')
+        name = ET.SubElement(shape,'name')
+        loce = ET.SubElement(shape,"loc")
+        lx,ly,lz = makeXYZode(loce)
+        lx.text = str(loc.x)
+        ly.text = str(loc.y)
+        lz.text = str(loc.z)
+        geom = ET.SubElement(shape,'geom')
+        #TODO: get rid of below count variables
+        x_counts = ET.SubElement(geom,'counts')
+        x_vcount = ET.SubElement(x_counts,'vertices')
+        x_fcount = ET.SubElement(x_counts,"faces")
+        x_vpf = ET.SubElement(x_counts,"v_p_f")
+        x_uvcount = ET.SubElement(x_counts,'uvs')
 
-        x_faces=ET.SubElement(geom,'faces')
-        x_verts=ET.SubElement(geom,'vertices')
-        x_uvs=ET.SubElement(geom,'uvs')
+        x_faces = ET.SubElement(geom,'faces')
+        x_verts = ET.SubElement(geom,'vertices')
+        x_uvs = ET.SubElement(geom,'uvs')
+        
         uv_index=0
-        name.text=model.data.name
+        name.text = model.data.name
         scene = bpy.context.scene
         oldmodel=None
   
         model=model.to_mesh(scene, True, 'PREVIEW')
-
-
         verts = model.vertices
-
-
-        x_vcount.text=str(len(verts))
+        x_vcount.text = str(len(verts))
 
         for v in verts:
-            x_vertex=ET.SubElement(x_verts,'vertex')
-            x_co=ET.SubElement(x_vertex,"coords")
-            x_normal=ET.SubElement(x_vertex,'normal')
-            x,y,z=makeXYZode(x_co)
-            x.text=str(v.co[0]*scale)
-            y.text=str(v.co[1]*scale)
-            z.text=str(v.co[2]*scale)
-            nx,ny,nz=makeXYZode(x_normal)
-            nx.text=str(v.normal[0])
-            ny.text=str(v.normal[1])
-            nz.text=str(v.normal[2])
+            x_vertex = ET.SubElement(x_verts,'vertex')
+            x_co = ET.SubElement(x_vertex,"coords")
+            x_normal = ET.SubElement(x_vertex,'normal')
+            x, y, z = makeXYZode(x_co)
+            x.text = str(v.co[0]*scale)
+            y.text = str(v.co[1]*scale)
+            z.text = str(v.co[2]*scale)
+            nx,ny,nz = makeXYZode(x_normal)
+            nx.text = str(v.normal[0])
+            ny.text = str(v.normal[1])
+            nz.text = str(v.normal[2])
 
         loop_vert = {l.index: l.vertex_index for l in model.loops}
-
-
-        last_tex=''
-        last_material=''
-        x_fcount.text=str(len(model.polygons))
+        
+        last_tex = ''
+        last_material = ''
+        x_fcount.text = str(len(model.polygons))
 
         for f in model.polygons:
-            #print (f.material_index)
-            texfn=model.uv_textures.active.data[f.index].image.name
+            face=ET.SubElement(x_faces,'face')
+            
+            
             uv_act = model.uv_layers.active
             uv_layer = uv_act.data if uv_act is not None else EmptyUV()
 
-            face=ET.SubElement(x_faces,'face')
-            if not omit_material:
+            if not skip_materials:
+                texfn=model.uv_textures.active.data[f.index].image.name
                 if last_material!=f.material_index:
                     material=ET.SubElement(face,'material')
                     mat=model.materials[f.material_index]
@@ -91,13 +89,14 @@ def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=Fals
                     emit=ET.SubElement(material,'emit')
                     emit.text=str(mat.emit)
                     last_material=f.material_index
-
-                vertices=ET.SubElement(face,'vertices')
+            
                 if last_tex!=texfn:
                     texture=ET.SubElement(face,'texture')
                     texture.text=texfn
                     last_tex=texfn
-                
+                    
+            vertices=ET.SubElement(face,'vertices')
+            
             vpf=len(f.loop_indices)
 
             uvlist=[]
@@ -109,9 +108,8 @@ def shapeExport(model,scale=1,omit_material=False,triangulate=False,swap_xy=Fals
             for li in f.loop_indices:
                coords=verts[loop_vert[li]].co 
                normal=verts[loop_vert[li]].normal
-               #print(normal)
                uv=uv_layer[li].uv
-               vertex=ET.SubElement(vertices,'vertex')
+               vertex=ET.SubElement(vertices, 'vertex')
                index=ET.SubElement(vertex,'i')
                index.text=str(loop_vert[li])
                x_uvi=ET.SubElement(vertex,'uv_i')

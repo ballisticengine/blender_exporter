@@ -70,62 +70,65 @@ def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=Fals
             uv_layer = uv_act.data if uv_act is not None else EmptyUV()
 
             if not skip_materials:
-                texfn=model.uv_textures.active.data[f.index].image.name
-                if last_material!=f.material_index:
-                    material=ET.SubElement(face,'material')
-                    mat=model.materials[f.material_index]
-                    specular=ET.SubElement(material,'specular')
-                    sr,sg,sb=makeRGBNode(specular)
-                    sr.text=str(mat.specular_color.r*mat.specular_intensity)
-                    sg.text=str(mat.specular_color.g*mat.specular_intensity)
-                    sb.text=str(mat.specular_color.b*mat.specular_intensity)
-                    diffuse=ET.SubElement(material,'diffuse')
-                    dr,dg,db=makeRGBNode(diffuse)
-                    dr.text=str(mat.diffuse_color.r*mat.diffuse_intensity)
-                    dg.text=str(mat.diffuse_color.g*mat.diffuse_intensity)
-                    db.text=str(mat.diffuse_color.b*mat.diffuse_intensity)
-                    shining=ET.SubElement(material,'shining')
-                    shining.text=str(mat.specular_hardness)
-                    emit=ET.SubElement(material,'emit')
-                    emit.text=str(mat.emit)
-                    last_material=f.material_index
-            
-                if last_tex!=texfn:
-                    texture=ET.SubElement(face,'texture')
-                    texture.text=texfn
-                    last_tex=texfn
+                try:
+                    texfn = model.uv_textures.active.data[f.index].image.name
+                except AttributeError:
+                    texfn = None
                     
-            vertices=ET.SubElement(face,'vertices')
+                if last_material != f.material_index:
+                    material = ET.SubElement(face,'material')
+                    mat = model.materials[f.material_index]
+                    specular = ET.SubElement(material,'specular')
+                    sr,sg,sb = makeRGBNode(specular)
+                    sr.text = str(mat.specular_color.r*mat.specular_intensity)
+                    sg.text = str(mat.specular_color.g*mat.specular_intensity)
+                    sb.text = str(mat.specular_color.b*mat.specular_intensity)
+                    diffuse = ET.SubElement(material,'diffuse')
+                    dr,dg,db = makeRGBNode(diffuse)
+                    dr.text = str(mat.diffuse_color.r*mat.diffuse_intensity)
+                    dg.text = str(mat.diffuse_color.g*mat.diffuse_intensity)
+                    db.text = str(mat.diffuse_color.b*mat.diffuse_intensity)
+                    shining = ET.SubElement(material,'shining')
+                    shining.text = str(mat.specular_hardness)
+                    emit = ET.SubElement(material,'emit')
+                    emit.text = str(mat.emit)
+                    last_material = f.material_index
             
-            vpf=len(f.loop_indices)
+                if last_tex != texfn or texfn == None:
+                    texture = ET.SubElement(face,'texture')
+                    texture.text = texfn
+                    last_tex = texfn
+                    
+            vertices = ET.SubElement(face,'vertices')
+            
+            vpf = len(f.loop_indices)
 
             uvlist=[]
             for li in f.loop_indices:
                 uvlist.append(uv_layer[li].uv)
             uvlist.reverse()
-            un=0
+            un = 0
             
             for li in f.loop_indices:
-               coords=verts[loop_vert[li]].co 
-               normal=verts[loop_vert[li]].normal
-               uv=uv_layer[li].uv
-               vertex=ET.SubElement(vertices, 'vertex')
-               index=ET.SubElement(vertex,'i')
-               index.text=str(loop_vert[li])
-               x_uvi=ET.SubElement(vertex,'uv_i')
-               x_uvi.text=str(uv_index)
-               uv_index+=1
-               x_uv=ET.SubElement(vertex,'uv')
-               x_u=ET.SubElement(x_uv,'u')
-               x_v=ET.SubElement(x_uv,'v')
-               x_u.text=str(uv[0])
-               x_v.text=str(uv[1])
+               coords = verts[loop_vert[li]].co 
+               normal = verts[loop_vert[li]].normal
+               uv = uv_layer[li].uv
+               vertex = ET.SubElement(vertices, 'vertex')
+               index = ET.SubElement(vertex,'i')
+               index.text = str(loop_vert[li])
+               x_uvi = ET.SubElement(vertex,'uv_i')
+               x_uvi.text = str(uv_index)
+               uv_index += 1
+               x_uv = ET.SubElement(vertex,'uv')
+               x_u = ET.SubElement(x_uv,'u')
+               x_v = ET.SubElement(x_uv,'v')
+               x_u.text = str(uv[0])
+               x_v.text = str(uv[1])
 
-        x_vpf.text=str(vpf)
-        x_uvcount.text=str(uv_index)
+        x_vpf.text = str(vpf)
+        x_uvcount.text = str(uv_index)
 
         if oldmodel:
-            print ("DEL")
             bpy.ops.object.delete()
 
         return shape

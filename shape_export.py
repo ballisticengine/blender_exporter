@@ -13,6 +13,8 @@ import math
 
 from helper import *
 
+#TODO: remove redundant UV info (both face vertex and uv list)
+
 def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=False):
         loc=model.location.copy()
         shape = ET.Element('shape')

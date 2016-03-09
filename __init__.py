@@ -61,6 +61,12 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         description="Don't export materials and textures",
         default=False
     )
+    #TODO
+    include_textures = BoolProperty(
+        name="Include textures",
+        description="Include texture data in the model file (not implemented)",
+        default=False
+    )
 
     def execute(self, context):
         self.context=context

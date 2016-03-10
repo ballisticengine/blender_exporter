@@ -17,8 +17,10 @@ from bpy_extras.io_utils import ImportHelper,ExportHelper,axis_conversion
 from bpy.app.handlers import persistent
 import bmesh
 
+
 import os
 import sys
+import bz2
 
 @persistent
 def setPath():
@@ -67,18 +69,36 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         description="Include texture data in the model file (not implemented)",
         default=False
     )
+    
+    compress = BoolProperty(
+        name="Compress (bz2)",
+        default=False
+    )
+    
+    pretty_print = BoolProperty(
+        name="XML Pretty print",
+        default=True
+    )
 
     def execute(self, context):
         self.context=context
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='BOUNDS')
+        model=context.active_object
+        
+        if self.triangulate:
+            triangulate(model)
+        
         shape = export(
-            model=context.active_object,
+            model=model,
             scale=self.scale,
             skip_materials = self.skip_materials,
-            triangulate = self.triangulate,
-            swap_yz = self.swap_yz
+            swap_yz = self.swap_yz,
         )
+        
+        if self.triangulate:
+            bpy.ops.ed.undo()
+        
         type = ET.SubElement(shape,"type")
 
         if self.animation:
@@ -87,10 +107,18 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
             type.text="static"
             
         tree = ET.ElementTree(shape)
-        f=open(self.filepath,"wb")
-        print (self.filepath)
-        tree.write(f)
+       
+        data = ET.tostring(tree.getroot())
+        
+        if self.compress:
+            f = open(self.filepath+".bz2","wb")    
+            data = bz2.compress(data)
+        else:
+            f = open(self.filepath,"wb")
+            
+        f.write(bytes(data))
         f.close()
+        
         return {'FINISHED'}
 
 

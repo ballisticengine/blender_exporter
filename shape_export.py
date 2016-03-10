@@ -15,7 +15,7 @@ from helper import *
 
 #TODO: remove redundant UV info (both face vertex and uv list)
 
-def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=False):
+def export(model, scale=1, skip_materials=False, swap_yz=False):
         loc=model.location.copy()
         shape = ET.Element('shape')
         name = ET.SubElement(shape,'name')
@@ -108,18 +108,19 @@ def export(model, scale=1, skip_materials=False, triangulate=False, swap_yz=Fals
                normal = verts[loop_vert[li]].normal
                uv = uv_layer[li].uv
                vertex = ET.SubElement(vertices, 'vertex')
-               index = ET.SubElement(vertex,'i')
+               index = ET.SubElement(vertex, 'i')
                index.text = str(loop_vert[li])
-               x_uvi = ET.SubElement(vertex,'uv_i')
+               x_uvi = ET.SubElement(vertex, 'uv_i')
                x_uvi.text = str(uv_index)
                uv_index += 1
-               x_uv = ET.SubElement(vertex,'uv')
-               x_u = ET.SubElement(x_uv,'u')
-               x_v = ET.SubElement(x_uv,'v')
-               x_u.text = str(uv[0])
-               x_v.text = str(uv[1])
                
-        if oldmodel:
-            bpy.ops.object.delete()
-
         return shape
+
+    
+def triangulate(model):
+    print("Triangulating model")
+    bm = bmesh.new()
+    bm.from_mesh(model.data)
+    bmesh.ops.triangulate(bm, faces=bm.faces)
+    bm.to_mesh(model.data)
+    return model

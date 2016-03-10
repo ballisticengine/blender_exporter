@@ -15,9 +15,8 @@ import bpy
 from bpy.props import StringProperty, FloatProperty, BoolProperty, EnumProperty
 from bpy_extras.io_utils import ImportHelper,ExportHelper,axis_conversion
 from bpy.app.handlers import persistent
+from xml.dom import minidom
 import bmesh
-
-
 import os
 import sys
 import bz2
@@ -110,13 +109,19 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
        
         data = ET.tostring(tree.getroot())
         
+        enc = None
+        
+        if self.pretty_print:
+            data = minidom.parseString(data).toprettyxml(indent="\t")
+            enc = 'utf8'
+        
         if self.compress:
             f = open(self.filepath+".bz2","wb")    
-            data = bz2.compress(data)
+            data = bytes(bz2.compress(data))
         else:
             f = open(self.filepath,"wb")
-            
-        f.write(bytes(data))
+            data = bytes(data, enc) #TODO: fix without pretty_print
+        f.write(data)
         f.close()
         
         return {'FINISHED'}

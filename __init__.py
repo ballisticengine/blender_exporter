@@ -56,6 +56,7 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
             )
     animation = BoolProperty(name="Animated", default=False)
     triangulate = BoolProperty(name="Triangulate", default=True)
+    #TODO
     swap_yz = BoolProperty(name="Swap YZ axes", default=True)
     skip_materials = BoolProperty(
         name="Skip materials", 
@@ -100,7 +101,7 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         
         type = ET.SubElement(shape,"type")
 
-        if self.animation:
+        if self.animation: #TODO
             type.text="animation"
         else:
             type.text="static"

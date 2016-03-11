@@ -13,7 +13,6 @@ import math
 
 from helper import *
 
-#TODO: remove redundant UV info (both face vertex and uv list)
 
 def export(model, scale=1, skip_materials=False, swap_yz=False):
         loc=model.location.copy()
@@ -58,8 +57,6 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
 
         for f in model.polygons:
             face=ET.SubElement(x_faces,'face')
-            
-            
             uv_act = model.uv_layers.active
             uv_layer = uv_act.data if uv_act is not None else EmptyUV()
 
@@ -82,9 +79,9 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
                     dr.text = str(mat.diffuse_color.r*mat.diffuse_intensity)
                     dg.text = str(mat.diffuse_color.g*mat.diffuse_intensity)
                     db.text = str(mat.diffuse_color.b*mat.diffuse_intensity)
-                    shining = ET.SubElement(material,'shining')
+                    shining = ET.SubElement(material, 'shining')
                     shining.text = str(mat.specular_hardness)
-                    emit = ET.SubElement(material,'emit')
+                    emit = ET.SubElement(material, 'emit')
                     emit.text = str(mat.emit)
                     last_material = f.material_index
             
@@ -94,8 +91,6 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
                     last_tex = texfn
                     
             vertices = ET.SubElement(face,'vertices')
-            
-            vpf = len(f.loop_indices)
 
             uvlist = []
             for li in f.loop_indices:
@@ -104,7 +99,7 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
             un = 0
             
             for li in f.loop_indices:
-               coords = verts[loop_vert[li]].co 
+               coords = verts[loop_vert[li]].co
                normal = verts[loop_vert[li]].normal
                uv = uv_layer[li].uv
                vertex = ET.SubElement(vertices, 'vertex')
@@ -113,12 +108,16 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
                x_uvi = ET.SubElement(vertex, 'uv_i')
                x_uvi.text = str(uv_index)
                uv_index += 1
+               x_uv=ET.SubElement(vertex,'uv')
+               x_u=ET.SubElement(x_uv,'u')
+               x_v=ET.SubElement(x_uv,'v')
+               x_u.text=str(uv[0])
+               x_v.text=str(uv[1])
                
         return shape
 
     
 def triangulate(model):
-    print("Triangulating model")
     bm = bmesh.new()
     bm.from_mesh(model.data)
     bmesh.ops.triangulate(bm, faces=bm.faces)

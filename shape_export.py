@@ -14,7 +14,7 @@ import math
 from helper import *
 
 
-def export(model, scale=1, skip_materials=False, swap_yz=False):
+def export(model, scale=1, skip_materials=False, shared_textures=False, swap_yz=False):
         loc=model.location.copy()
         shape = ET.Element('shape')
         name = ET.SubElement(shape,'name')
@@ -84,6 +84,9 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
                     emit = ET.SubElement(material, 'emit')
                     emit.text = str(mat.emit)
                     last_material = f.material_index
+                
+                if  texfn and shared_textures:
+                    texfn='@'+texfn
             
                 if last_tex != texfn or texfn == None:
                     texture = ET.SubElement(face,'texture')

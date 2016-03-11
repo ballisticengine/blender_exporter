@@ -75,6 +75,11 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         default=False
     )
     
+    shared_textures = BoolProperty(
+        name="Use common textures",
+        default=False
+    )
+    
     pretty_print = BoolProperty(
         name="XML Pretty print",
         default=True
@@ -94,6 +99,7 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
             scale=self.scale,
             skip_materials = self.skip_materials,
             swap_yz = self.swap_yz,
+            shared_textures = self.shared_textures,
         )
         
         if self.triangulate:
@@ -102,9 +108,9 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         type = ET.SubElement(shape,"type")
 
         if self.animation: #TODO
-            type.text="animation"
+            type.text = "animation"
         else:
-            type.text="static"
+            type.text = "static"
             
         tree = ET.ElementTree(shape)
        
@@ -113,7 +119,7 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         enc = None
         
         if self.pretty_print:
-            data = minidom.parseString(data).toprettyxml(indent="\t")
+            data = minidom.parseString(data).toprettyxml(indent=" ")
             enc = 'utf8'
         
         if self.compress:

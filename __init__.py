@@ -120,7 +120,12 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
             data = bytes(bz2.compress(data))
         else:
             f = open(self.filepath,"wb")
-            data = bytes(data, enc) #TODO: fix without pretty_print
+            
+            if enc is None:
+                 data = bytes(data) 
+            else:
+                 data = bytes(data, enc) 
+           
         f.write(data)
         f.close()
         

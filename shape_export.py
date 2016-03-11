@@ -77,8 +77,8 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
                     sr.text = str(mat.specular_color.r*mat.specular_intensity)
                     sg.text = str(mat.specular_color.g*mat.specular_intensity)
                     sb.text = str(mat.specular_color.b*mat.specular_intensity)
-                    diffuse = ET.SubElement(material,'diffuse')
-                    dr,dg,db = makeRGBNode(diffuse)
+                    diffuse = ET.SubElement(material, 'diffuse')
+                    dr, dg, db = makeRGBNode(diffuse)
                     dr.text = str(mat.diffuse_color.r*mat.diffuse_intensity)
                     dg.text = str(mat.diffuse_color.g*mat.diffuse_intensity)
                     db.text = str(mat.diffuse_color.b*mat.diffuse_intensity)
@@ -97,7 +97,7 @@ def export(model, scale=1, skip_materials=False, swap_yz=False):
             
             vpf = len(f.loop_indices)
 
-            uvlist=[]
+            uvlist = []
             for li in f.loop_indices:
                 uvlist.append(uv_layer[li].uv)
             uvlist.reverse()

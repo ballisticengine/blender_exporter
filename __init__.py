@@ -10,6 +10,9 @@ bl_info = {
     "category": "Import-Export2"}
 
 
+if 'bpy' in locals():
+    import imp
+
 
 import bpy
 from bpy.props import StringProperty, FloatProperty, BoolProperty, EnumProperty
@@ -29,20 +32,8 @@ setPath()
 
 import xml.etree.ElementTree as ET
 import math
-from helper import *
-from shape_export import *
-from bounding_hepler import *
-import imp
 
-if "helper" in locals():
-        imp.reload(helper)
-
-if "shape_export" in locals():
-    imp.reload(shape_export)
-
-if "bounding_hepler" in locals():
-    imp.reload(bounding_hepler)
-
+import helper, shape_export
 
 class ExportXMLModel(bpy.types.Operator,ExportHelper):
     bl_idname = "export_scene.xml_model"
@@ -92,9 +83,9 @@ class ExportXMLModel(bpy.types.Operator,ExportHelper):
         model=context.active_object
         
         if self.triangulate:
-            triangulate(model)
+            shape_export.triangulate(model)
         
-        shape = export(
+        shape = shape_export.export(
             model=model,
             scale=self.scale,
             skip_materials = self.skip_materials,

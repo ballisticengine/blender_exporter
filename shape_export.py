@@ -32,8 +32,6 @@ def export(model, scale=1, skip_materials=False, shared_textures=False, swap_yz=
         uv_index=0
         name.text = model.data.name
         scene = bpy.context.scene
-        oldmodel=None
-  
         model=model.to_mesh(scene, True, 'PREVIEW')
         verts = model.vertices
 
@@ -42,9 +40,12 @@ def export(model, scale=1, skip_materials=False, shared_textures=False, swap_yz=
             x_co = ET.SubElement(x_vertex,"coords")
             x_normal = ET.SubElement(x_vertex,'normal')
             x, y, z = makeXYZode(x_co)
-            x.text = str(v.co[0]*scale)
-            y.text = str(v.co[1]*scale)
-            z.text = str(v.co[2]*scale)
+            cx, cy, cz = v.co[0],v.co[1], v.co[2]
+            if swap_yz:
+                cy, cz = cz, -cy
+            x.text = str(cx*scale)
+            y.text = str(cy*scale)
+            z.text = str(cz*scale)
             nx,ny,nz = makeXYZode(x_normal)
             nx.text = str(v.normal[0])
             ny.text = str(v.normal[1])
@@ -111,11 +112,11 @@ def export(model, scale=1, skip_materials=False, shared_textures=False, swap_yz=
                x_uvi = ET.SubElement(vertex, 'uv_i')
                x_uvi.text = str(uv_index)
                uv_index += 1
-               x_uv=ET.SubElement(vertex,'uv')
-               x_u=ET.SubElement(x_uv,'u')
-               x_v=ET.SubElement(x_uv,'v')
-               x_u.text=str(uv[0])
-               x_v.text=str(uv[1])
+               x_uv = ET.SubElement(vertex,'uv')
+               x_u = ET.SubElement(x_uv,'u')
+               x_v = ET.SubElement(x_uv,'v')
+               x_u.text = str(uv[0])
+               x_v.text = str(uv[1])
                
         return shape
 
